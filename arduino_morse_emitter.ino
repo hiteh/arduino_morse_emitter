@@ -15,17 +15,19 @@
   Morse code lookup entry.
 
   Fields:
-  - capital: ASCII code for the uppercase character.
-  - regular: ASCII code for the lowercase character.
-  - parts: number of used 4-bit groups in the data field.
-  - data: Morse code binary representation stored in up to 16 bits.
+  - uppercaseAscii: ASCII code for the uppercase character.
+  - lowercaseAscii: ASCII code for the lowercase character.
+  - symbolCount: number of used 4-bit groups in the encodedPattern field.
+  - encodedPattern: Morse code binary representation stored in up to 16 bits.
 */
-struct MorseCode {
-  int capital;    // Capital character ASCII decimal symbol.
-  int regular;    // Regular character ASCII decimal symbol.
-  int parts;      // The amount of 4 bit parts each morse character has (for example 0b10001110 has two 4 bit parts).
-  uint16_t data;  // Mores code character binary representation / 16 bits (four 4 bit parts).
+struct MorseCodeEntry {
+  int uppercaseAscii;      // Uppercase character ASCII decimal code.
+  int lowercaseAscii;      // Lowercase character ASCII decimal code.
+  int symbolCount;         // Number of 4-bit Morse parts used by the character.
+  uint16_t encodedPattern; // Morse character binary representation in 16 bits (four 4-bit parts).
 };
+
+MorseCodeEntry getMorseCodeEntryByAscii(int asciiCode);
 
 /*
   Morse code dictionary.
@@ -34,7 +36,7 @@ struct MorseCode {
   - the associated character,
   - the position in the table.
 */
-MorseCode data[] = {
+MorseCodeEntry morseTable[] = {
   {65, 97, 2, 0b10001110},          // A       0
   {66, 98, 4, 0b1110100010001000},  // B       1
   {69, 101, 1, 0b1000},             // E       4
@@ -65,26 +67,26 @@ MorseCode data[] = {
 };
 
 /*
-  Returns a copy of the MorseCode record matching the provided ASCII code.
+  Returns a copy of the MorseCodeEntry record matching the provided ASCII code.
 
   The function searches both uppercase and lowercase ASCII values.
 */
-MorseCode getCopyByIndex(int searchIndex) {
-  const int dataSize = sizeof(data) / sizeof(data[0]);
+MorseCodeEntry getMorseCodeEntryByAscii(int asciiCode) {
+  const int morseTableSize = sizeof(morseTable) / sizeof(morseTable[0]);
 
-  for (int i = 0; i < dataSize; i++) {
-    if (searchIndex == data[i].regular || searchIndex == data[i].capital) {
-      MorseCode recordCopy = data[i];
-      return recordCopy;
+  for (int tableIndex = 0; tableIndex < morseTableSize; tableIndex++) {
+    if (asciiCode == morseTable[tableIndex].lowercaseAscii || asciiCode == morseTable[tableIndex].uppercaseAscii) {
+      MorseCodeEntry morseCodeEntryCopy = morseTable[tableIndex];
+      return morseCodeEntryCopy;
     }
   }
 }
 
 // The setup function runs once when you press reset or power the board.
 void setup() {
-  const int dit_rate = 50;
-  const char msg_display[] = "Hello world";
-  int current_char = 0;
+  const int ditDurationMs = 50;
+  const char inputText[] = "Hello world";
+  int currentCharIndex = 0;
 
   delay(1000); // Initial startup delay.
 
@@ -93,21 +95,21 @@ void setup() {
   Serial.begin(9600);
 
   // Iterate through the source text one character at a time.
-  while (msg_display[current_char] != '\0') {
-    MorseCode mrsChar = getCopyByIndex(msg_display[current_char]);
+  while (inputText[currentCharIndex] != '\0') {
+    MorseCodeEntry currentMorseEntry = getMorseCodeEntryByAscii(inputText[currentCharIndex]);
 
     // Process Morse code groups from the most significant used nibble to the least significant one.
-    for (int i = mrsChar.parts - 1; i >= 0; i--) {
-      if (mrsChar.data == 0b0000) { // Emit space between words.
+    for (int symbolIndex = currentMorseEntry.symbolCount - 1; symbolIndex >= 0; symbolIndex--) {
+      if (currentMorseEntry.encodedPattern == 0b0000) { // Emit space between words.
         Serial.print("______");
         break; // End processing for the current space character.
       }
 
       // Extract the current 4-bit symbol.
-      byte symb = (mrsChar.data >> (i * 4)) & 0x0F;
+      byte morseSymbol = (currentMorseEntry.encodedPattern >> (symbolIndex * 4)) & 0x0F;
 
       // Translate the 4-bit symbol into its textual Morse form.
-      switch (symb) {
+      switch (morseSymbol) {
         case 0b1000:
           Serial.print("dit");
           break; // End current symbol handling.
@@ -119,16 +121,16 @@ void setup() {
       }
 
       // Read the next character to decide whether to print symbol or character spacing.
-      MorseCode nextChar = getCopyByIndex(msg_display[current_char + 1]); // Get next character.
+      MorseCodeEntry nextMorseEntry = getMorseCodeEntryByAscii(inputText[currentCharIndex + 1]); // Get next character.
 
-      if (i == 0 && nextChar.data != 0b0000) { // If it is the last binary part of the current character and next character is not space, emit space between characters.
+      if (symbolIndex == 0 && nextMorseEntry.encodedPattern != 0b0000) { // If it is the last binary part of the current character and next character is not space, emit space between characters.
         Serial.print("___");
       } else { // Emit space between symbols.
         Serial.print("_");
       }
     }
 
-    current_char++;
+    currentCharIndex++;
   }
 }
 
