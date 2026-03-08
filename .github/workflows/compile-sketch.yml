@@ -1,0 +1,24 @@
+name: Compile Arduino Sketch
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: arduino:avr:uno
+          libraries: '[]'
+          sketch-paths: |
+            - .

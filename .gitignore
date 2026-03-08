@@ -1,0 +1,27 @@
+# Arduino build artifacts
+*.elf
+*.hex
+*.bin
+*.eep
+*.map
+*.lst
+*.o
+*.a
+*.d
+
+# Arduino IDE / CLI temporary files
+build/
+out/
+.tmp/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
