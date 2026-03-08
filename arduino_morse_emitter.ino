@@ -129,7 +129,7 @@ void setup() {
         if (!nextMorseEntry.encodedPattern && symbolIndex == 0) { // Break if there are no more characters after this character.
           break;
         }
-      Serial.print("_");
+        Serial.print("_");
       }
     }
 
