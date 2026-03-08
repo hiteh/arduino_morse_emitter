@@ -126,10 +126,10 @@ void setup() {
       if (symbolIndex == 0 && nextMorseEntry.encodedPattern != 0b0000) { // If it is the last binary part of the current character and next character is not space, emit space between characters.
         Serial.print("___");
       } else { // Emit space between symbols.
-          if (!nextMorseEntry.encodedPattern && symbolIndex == 0) { // Break if there are no more characters after this character.
-            break;
-          }
-        Serial.print("_");
+        if (!nextMorseEntry.encodedPattern && symbolIndex == 0) { // Break if there are no more characters after this character.
+          break;
+        }
+      Serial.print("_");
       }
     }
 
