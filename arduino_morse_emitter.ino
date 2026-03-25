@@ -89,7 +89,7 @@ void setup() {
   int currentCharIndex = 0;
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW); Built-in LED OFF
+  digitalWrite(LED_BUILTIN, LOW);  // Built-in LED OFF
   Serial.begin(9600);
   delay(5000);          // Initial startup delay.
   Serial.print("CT ");  // Beginning of message / Copy This
@@ -102,7 +102,7 @@ void setup() {
     for (int symbolIndex = currentMorseEntry.symbolCount - 1; symbolIndex >= 0; symbolIndex--) {
       if (currentMorseEntry.encodedPattern == 0b0000) {  // Emit space between words.
         Serial.print("______");
-        digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(LED_BUILTIN, LOW);  // Built-in LED OFF
         delay(ditDurationMs * 6);
         break;  // End processing for the current space character.
       }
@@ -114,12 +114,12 @@ void setup() {
       switch (morseSymbol) {
         case 0b1000:
           Serial.print("dit");
-          digitalWrite(LED_BUILTIN, HIGH); // Built-in LED ON
+          digitalWrite(LED_BUILTIN, HIGH);  // Built-in LED ON
           delay(ditDurationMs);
           break;  // End current symbol handling.
         case 0b1110:
           Serial.print("dah");
-          digitalWrite(LED_BUILTIN, HIGH); // Built-in LED ON
+          digitalWrite(LED_BUILTIN, HIGH);  // Built-in LED ON
           delay(ditDurationMs * 3);
           break;  // End current symbol handling.
         default:
@@ -131,22 +131,22 @@ void setup() {
 
       if (symbolIndex == 0 && nextMorseEntry.encodedPattern != 0b0000) {  // If it is the last binary part of the current character and next character is not space, emit space between characters.
         Serial.print("___");
-        digitalWrite(LED_BUILTIN, LOW); // Built-in LED OFF
+        digitalWrite(LED_BUILTIN, LOW);  // Built-in LED OFF
         delay(ditDurationMs * 3);
       } else {                                                     // Emit space between symbols.
         if (!nextMorseEntry.encodedPattern && symbolIndex == 0) {  // Break if there are no more characters after this character.
           break;
         }
         Serial.print("_");
-        digitalWrite(LED_BUILTIN, LOW); // Built-in LED OFF
+        digitalWrite(LED_BUILTIN, LOW);  // Built-in LED OFF
         delay(ditDurationMs);
       }
     }
 
     currentCharIndex++;
   }
-  Serial.println(" AR");  // End of message / Stop
-  digitalWrite(LED_BUILTIN, LOW); Built-in LED OFF
+  Serial.println(" AR");           // End of message / Stop
+  digitalWrite(LED_BUILTIN, LOW);  // Built - in LED OFF
 }
 
 // The loop function runs over and over again forever.
